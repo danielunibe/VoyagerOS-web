@@ -6,7 +6,7 @@ A desktop experience for Windows in development. This repository contains the st
 
 ## Current public state
 
-- Bilingual journey through desktop-interface history, an independent 1984 Macintosh educational study, and a 52-capability catalog.
+- Bilingual journey through desktop-interface history, independent interactive educational studies inspired by Macintosh 1984 and Windows 95, and a 52-capability catalog.
 - Development updates and RSS feeds.
 - Public beta download is being prepared.
 - Voluntary support via Buy Me a Coffee will be activated after the recipient profile is ready.

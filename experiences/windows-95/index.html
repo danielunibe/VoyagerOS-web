@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estudio interactivo educativo e independiente inspirado en Windows 95. No es software de Microsoft ni accede al sistema anfitrión.">
+    <title>Windows 95 · Estudio interactivo educativo</title>
+    <style>
+        :root {
+            --win-teal: #008080;
+            --win-gray: #c0c0c0;
+            --win-light: #ffffff;
+            --win-highlight: #dfdfdf;
+            --win-shadow: #808080;
+            --win-dark: #000000;
+            --win-navy: #000080;
+            --win-selection: #000080;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif;
+            font-size: 11px;
+            color: #000;
+            overflow: hidden;
+            -webkit-font-smoothing: none;
+            text-rendering: pixelated;
+            background-color: var(--win-teal);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+        }
+
+        .bg-win-gray { background-color: var(--win-gray); }
+
+        /* Biseles y bordes 3D auténticos de Win95 */
+        .win95-outset {
+            box-shadow: inset 1px 1px var(--win-light),
+                        inset -1px -1px var(--win-dark),
+                        inset 2px 2px var(--win-highlight),
+                        inset -2px -2px var(--win-shadow);
+            background-color: var(--win-gray);
+        }
+
+        .win95-inset {
+            box-shadow: inset 1px 1px var(--win-shadow),
+                        inset -1px -1px var(--win-light),
+                        inset 2px 2px var(--win-dark),
+                        inset -2px -2px var(--win-highlight);
+            background-color: #ffffff;
+        }
+
+        .win95-inset-field {
+            box-shadow: inset 1px 1px var(--win-shadow),
+                        inset -1px -1px var(--win-light),
+                        inset 2px 2px var(--win-dark),
+                        inset -2px -2px var(--win-highlight);
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .win95-button {
+            box-shadow: inset 1px 1px var(--win-light),
+                        inset -1px -1px var(--win-dark),
+                        inset 2px 2px var(--win-highlight),
+                        inset -2px -2px var(--win-shadow);
+            background-color: var(--win-gray);
+            cursor: pointer;
+            border: none;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 8px;
+            font-family: inherit;
+            font-size: 11px;
+        }
+
+        .win95-button:active, .win95-button.pressed {
+            box-shadow: inset 1px 1px var(--win-dark),
+                        inset -1px -1px var(--win-light),
+                        inset 2px 2px var(--win-shadow),
+                        inset -2px -2px var(--win-highlight);
+            padding: 3px 7px 1px 9px;
+        }
+
+        .win95-button:focus {
+            outline: 1px dotted #000;
+            outline-offset: -4px;
+        }
+
+        :focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+        .win95-button:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+        .desktop-icon-item:focus-visible, .menubar-item:focus-visible, .dropdown-entry:focus-visible,
+        .start-item:focus-visible { outline: 1px dotted #fff; outline-offset: 1px; }
+
+        /* Botón de barra de tareas activo con patrón dither clásico */
+        .taskbar-btn-active {
+            box-shadow: inset 1px 1px var(--win-dark),
+                        inset -1px -1px var(--win-light),
+                        inset 2px 2px var(--win-shadow),
+                        inset -2px -2px var(--win-highlight);
+            background-image: radial-gradient(var(--win-highlight) 15%, transparent 16%),
+                              radial-gradient(var(--win-light) 15%, var(--win-gray) 16%);
+            background-size: 4px 4px;
+            padding: 3px 7px 1px 9px !important;
+        }
+
+        /* Ventanas */
+        .win95-window {
+            position: absolute;
+            box-shadow: inset 1px 1px var(--win-light),
+                        inset -1px -1px var(--win-dark),
+                        inset 2px 2px var(--win-highlight),
+                        inset -2px -2px var(--win-shadow);
+            background-color: var(--win-gray);
+            padding: 3px;
+            display: none;
+            flex-direction: column;
+            min-width: 220px;
+            min-height: 120px;
+        }
+
+        .win95-window.maximized {
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: calc(100vh - 28px) !important;
+        }
+
+        .title-bar {
+            height: 18px;
+            padding: 2px 3px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 11px;
+            background-color: var(--win-navy);
+            letter-spacing: 0.2px;
+            cursor: move;
+        }
+
+        .title-bar.inactive {
+            background-color: var(--win-shadow);
+            color: var(--win-highlight);
+        }
+
+        .title-btn {
+            width: 16px;
+            height: 14px;
+            padding: 0;
+            margin-left: 2px;
+            font-size: 9px;
+            font-weight: bold;
+            line-height: 10px;
+            background-color: var(--win-gray);
+            box-shadow: inset 1px 1px var(--win-light),
+                        inset -1px -1px var(--win-dark),
+                        inset 2px 2px var(--win-highlight),
+                        inset -2px -2px var(--win-shadow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .title-btn:active {
+            box-shadow: inset 1px 1px var(--win-dark),
+                        inset -1px -1px var(--win-light),
+                        inset 2px 2px var(--win-shadow),
+                        inset -2px -2px var(--win-highlight);
+            padding-top: 1px;
+            padding-left: 1px;
+        }
+
+        /* Barra de Menú de Ventana */
+        .window-menubar {
+            display: flex;
+            background-color: var(--win-gray);
+            padding: 2px 0 3px 0;
+            border-bottom: 1px solid var(--win-shadow);
+            margin-bottom: 2px;
+        }
+
+        .menubar-item {
+            padding: 2px 6px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .menubar-item:hover, .menubar-item.open {
+            background-color: var(--win-navy);
+            color: white;
+        }
+
+        /* Menú desplegable */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--win-gray);
+            box-shadow: inset 1px 1px var(--win-light),
+                        inset -1px -1px var(--win-dark),
+                        inset 2px 2px var(--win-highlight),
+                        inset -2px -2px var(--win-shadow),
+                        2px 2px 5px rgba(0,0,0,0.4);
+            padding: 2px;
+            z-index: 10000;
+            display: none;
+            min-width: 140px;
+        }
+
+        .dropdown-menu.visible {
+            display: block;
+        }
+
+        .dropdown-entry {
+            padding: 3px 18px 3px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            color: #000;
+            white-space: nowrap;
+        }
+
+        .dropdown-entry:hover {
+            background-color: var(--win-navy);
+            color: #ffffff;
+        }
+
+        .menu-divider {
+            height: 1px;
+            border-top: 1px solid var(--win-shadow);
+            border-bottom: 1px solid var(--win-light);
+            margin: 3px 1px;
+        }
+
+        /* Íconos de Escritorio */
+        .desktop-icon-item {
+            width: 74px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .desktop-icon-img {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+        }
+
+        .desktop-icon-label {
+            margin-top: 4px;
+            padding: 1px 3px;
+            color: #ffffff;
+            text-align: center;
+            line-height: 1.15;
+            word-break: break-word;
+            font-size: 11px;
+        }
+
+        .desktop-icon-item.selected .desktop-icon-label {
+            background-color: var(--win-selection);
+            outline: 1px dotted #ffffff;
+        }
+
+        .desktop-icon-item.selected .desktop-icon-img {
+            filter: drop-shadow(0 0 0 #000080);
+            opacity: 0.8;
+        }
+
+        /* Marquee selection box */
+        #selection-box {
+            position: absolute;
+            border: 1px dotted #000000;
+            background-color: rgba(0, 0, 128, 0.2);
+            pointer-events: none;
+            display: none;
+            z-index: 50;
+        }
+
+        /* Menú Inicio y Cascadas */
+        #start-menu {
+            display: none;
+            position: absolute;
+            bottom: 28px;
+            left: 2px;
+            background-color: var(--win-gray);
+            box-shadow: inset 1px 1px var(--win-light),
+                        inset -1px -1px var(--win-dark),
+                        inset 2px 2px var(--win-highlight),
+                        inset -2px -2px var(--win-shadow),
+                        3px 3px 8px rgba(0,0,0,0.5);
+            z-index: 99999;
+            flex-direction: row;
+            padding: 2px;
+        }
+
+        .start-sidebar {
+            width: 24px;
+            background: linear-gradient(to top, #000080 0%, #1084d0 100%);
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 6px;
+            padding-left: 3px;
+        }
+
+        .start-sidebar-text {
+            transform: rotate(-90deg);
+            transform-origin: left bottom;
+            white-space: nowrap;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .start-sidebar-text span {
+            font-weight: normal;
+        }
+
+        .start-list {
+            display: flex;
+            flex-direction: column;
+            width: 175px;
+            padding: 1px;
+        }
+
+        .start-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 6px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .start-item:hover {
+            background-color: var(--win-navy);
+            color: #ffffff;
+        }
+
+        .submenu-flyout {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: -2px;
+            background-color: var(--win-gray);
+            box-shadow: inset 1px 1px var(--win-light),
+                        inset -1px -1px var(--win-dark),
+                        inset 2px 2px var(--win-highlight),
+                        inset -2px -2px var(--win-shadow),
+                        3px 3px 8px rgba(0,0,0,0.5);
+            min-width: 170px;
+            padding: 2px;
+            z-index: 100000;
+        }
+
+        .has-submenu:hover > .submenu-flyout {
+            display: block;
+        }
+
+        /* Buscaminas Display de 7 Segmentos */
+        .mine-lcd {
+            background-color: #000000;
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 20px;
+            letter-spacing: 2px;
+            padding: 1px 4px;
+            border: 1px solid var(--win-shadow);
+            line-height: 1;
+            height: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .mine-cell {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .mine-cell-unrevealed {
+            box-shadow: inset 1px 1px var(--win-light),
+                        inset -1px -1px var(--win-dark),
+                        inset 2px 2px var(--win-highlight),
+                        inset -2px -2px var(--win-shadow);
+            background-color: var(--win-gray);
+        }
+
+        .mine-cell-revealed {
+            border: 1px solid var(--win-shadow);
+            background-color: var(--win-gray);
+        }
+
+        /* Números clásicos de Buscaminas */
+        .mine-1 { color: #0000ff; }
+        .mine-2 { color: #008000; }
+        .mine-3 { color: #ff0000; }
+        .mine-4 { color: #000080; }
+        .mine-5 { color: #800000; }
+        .mine-6 { color: #008080; }
+        .mine-7 { color: #000000; }
+        .mine-8 { color: #808080; }
+
+        /* Calculadora */
+        .calc-btn {
+            min-width: 32px;
+            height: 26px;
+            margin: 2px;
+            color: #000080;
+            font-weight: bold;
+        }
+        .calc-btn.op { color: #ff0000; }
+        .calc-btn.fn { color: #000080; font-weight: normal; }
+
+        /* Diálogo modal clásico */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: transparent;
+            z-index: 1000000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Pantalla de apagado de Windows 95 */
+        #shutdown-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            z-index: 2000000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ff8000;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+        }
+        @media (max-width: 640px) {
+            .win95-window:not(.maximized) {
+                left: 6px !important;
+                top: 6px !important;
+                width: calc(100vw - 12px) !important;
+                max-width: calc(100vw - 12px);
+                min-width: 0;
+                height: min(72dvh, 480px) !important;
+                max-height: calc(100dvh - 40px);
+                overflow: auto;
+            }
+            .win95-window.maximized { height: calc(100dvh - 28px) !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+  <link rel="stylesheet" href="/VoyagerOS-web/experiences/windows-95/tailwind.css"/>
+</head>
+<body id="os-body" oncontextmenu="return false;">
+    <h1 class="sr-only">Windows 95 — recreación interactiva educativa independiente</h1>
+
+    <!-- Caja de selección rectangular en el escritorio -->
+    <div id="selection-box"></div>
+
+    <!-- Menú Contextual del Escritorio -->
+    <div id="desktop-context-menu" class="dropdown-menu">
+        <div class="dropdown-entry" onclick="arrangeIcons()"><u>A</u>linear iconos</div>
+        <div class="dropdown-entry" onclick="location.reload()"><u>A</u>ctualizar</div>
+        <div class="menu-divider"></div>
+        <div class="dropdown-entry" onclick="openWindow('window-notepad')"><u>N</u>uevo documento de texto</div>
+        <div class="menu-divider"></div>
+        <div class="dropdown-entry" onclick="showProperties()"><u>P</u>ropiedades</div>
+    </div>
+
+    <!-- Escritorio -->
+    <div class="w-full h-[calc(100vh-28px)] p-3 relative flex flex-col flex-wrap content-start gap-1" id="desktop">
+        
+        <!-- Ícono: Mi PC -->
+        <div class="desktop-icon-item" id="d-icon-mypc" data-window="window-mypc" ondblclick="openWindow('window-mypc')">
+            <svg class="desktop-icon-img" viewBox="0 0 32 32">
+                <!-- Monitor CRT beige -->
+                <rect x="2" y="2" width="28" height="20" fill="#dfdfdf" stroke="#000" stroke-width="1"/>
+                <rect x="3" y="3" width="26" height="1" fill="#fff"/>
+                <rect x="5" y="5" width="22" height="14" fill="#008080" stroke="#808080"/>
+                <rect x="7" y="7" width="4" height="2" fill="#fff"/>
+                <!-- Base e indicador -->
+                <rect x="11" y="22" width="10" height="2" fill="#808080"/>
+                <rect x="8" y="24" width="16" height="6" fill="#c0c0c0" stroke="#000" stroke-width="1"/>
+                <line x1="12" y1="27" x2="18" y2="27" stroke="#000" stroke-width="1.5"/>
+                <rect x="21" y="26" width="2" height="2" fill="#00ff00"/>
+            </svg>
+            <div class="desktop-icon-label">Mi PC</div>
+        </div>
+
+        <!-- Ícono: Entorno de red -->
+        <div class="desktop-icon-item" id="d-icon-network" ondblclick="playSystemBeep()">
+            <svg class="desktop-icon-img" viewBox="0 0 32 32">
+                <rect x="2" y="2" width="18" height="14" fill="#dfdfdf" stroke="#000"/>
+                <rect x="5" y="5" width="12" height="8" fill="#000080"/>
+                <rect x="12" y="14" width="18" height="14" fill="#dfdfdf" stroke="#000"/>
+                <rect x="15" y="17" width="12" height="8" fill="#008080"/>
+                <path d="M7 16 V28 H12" stroke="#000" stroke-width="2" fill="none"/>
+            </svg>
+            <div class="desktop-icon-label">Entorno de red</div>
+        </div>
+
+        <!-- Ícono: Papelera de reciclaje -->
+        <div class="desktop-icon-item" id="d-icon-trash" ondblclick="openTrash()">
+            <svg class="desktop-icon-img" viewBox="0 0 32 32">
+                <path d="M4 8 H28 V11 H4 Z" fill="#808080" stroke="#000"/>
+                <path d="M6 11 L9 30 H23 L26 11 Z" fill="#c0c0c0" stroke="#000"/>
+                <line x1="11" y1="14" x2="12" y2="27" stroke="#808080" stroke-width="2"/>
+                <line x1="16" y1="14" x2="16" y2="27" stroke="#808080" stroke-width="2"/>
+                <line x1="21" y1="14" x2="20" y2="27" stroke="#808080" stroke-width="2"/>
+                <rect x="12" y="4" width="8" height="4" fill="#dfdfdf" stroke="#000"/>
+            </svg>
+            <div class="desktop-icon-label">Papelera de reciclaje</div>
+        </div>
+
+        <!-- Ícono: Bloc de Notas -->
+        <div class="desktop-icon-item" id="d-icon-notepad" data-window="window-notepad" ondblclick="openWindow('window-notepad')">
+            <svg class="desktop-icon-img" viewBox="0 0 32 32">
+                <rect x="4" y="2" width="22" height="28" fill="#fff" stroke="#000"/>
+                <rect x="4" y="2" width="22" height="4" fill="#000080"/>
+                <line x1="7" y1="10" x2="23" y2="10" stroke="#808080" stroke-width="1.5"/>
+                <line x1="7" y1="14" x2="23" y2="14" stroke="#808080" stroke-width="1.5"/>
+                <line x1="7" y1="18" x2="23" y2="18" stroke="#808080" stroke-width="1.5"/>
+                <line x1="7" y1="22" x2="18" y2="22" stroke="#808080" stroke-width="1.5"/>
+                <path d="M22 20 L28 26 L26 28 L20 22 Z" fill="#ffff00" stroke="#000"/>
+            </svg>
+            <div class="desktop-icon-label">Bloc de notas</div>
+        </div>
+
+        <!-- Ícono: Buscaminas -->
+        <div class="desktop-icon-item" id="d-icon-minesweeper" data-window="window-minesweeper" ondblclick="openWindow('window-minesweeper')">
+            <svg class="desktop-icon-img" viewBox="0 0 32 32">
+                <rect x="2" y="2" width="28" height="28" fill="#c0c0c0" stroke="#000"/>
+                <circle cx="16" cy="16" r="7" fill="#000"/>
+                <line x1="16" y1="4" x2="16" y2="28" stroke="#000" stroke-width="2"/>
+                <line x1="4" y1="16" x2="28" y2="16" stroke="#000" stroke-width="2"/>
+                <line x1="7" y1="7" x2="25" y2="25" stroke="#000" stroke-width="2"/>
+                <line x1="7" y1="25" x2="25" y2="7" stroke="#000" stroke-width="2"/>
+                <rect x="13" y="13" width="2" height="2" fill="#fff"/>
+            </svg>
+            <div class="desktop-icon-label">Buscaminas</div>
+        </div>
+
+        <!-- Ícono: Calculadora -->
+        <div class="desktop-icon-item" id="d-icon-calc" data-window="window-calc" ondblclick="openWindow('window-calc')">
+            <svg class="desktop-icon-img" viewBox="0 0 32 32">
+                <rect x="4" y="2" width="24" height="28" fill="#c0c0c0" stroke="#000"/>
+                <rect x="7" y="5" width="18" height="6" fill="#fff" stroke="#808080"/>
+                <rect x="7" y="14" width="4" height="3" fill="#000080"/>
+                <rect x="14" y="14" width="4" height="3" fill="#000080"/>
+                <rect x="21" y="14" width="4" height="3" fill="#ff0000"/>
+                <rect x="7" y="19" width="4" height="3" fill="#000080"/>
+                <rect x="14" y="19" width="4" height="3" fill="#000080"/>
+                <rect x="21" y="19" width="4" height="3" fill="#ff0000"/>
+                <rect x="7" y="24" width="4" height="3" fill="#000080"/>
+                <rect x="14" y="24" width="4" height="3" fill="#000080"/>
+                <rect x="21" y="24" width="4" height="3" fill="#ff0000"/>
+            </svg>
+            <div class="desktop-icon-label">Calculadora</div>
+        </div>
+
+        <!-- Ícono: Paint -->
+        <div class="desktop-icon-item" id="d-icon-paint" data-window="window-paint" ondblclick="openWindow('window-paint')">
+            <svg class="desktop-icon-img" viewBox="0 0 32 32">
+                <path d="M4 18 C4 10 12 4 20 4 C27 4 30 8 28 14 C26 18 20 16 19 20 C18 24 22 26 20 29 C14 31 4 26 4 18 Z" fill="#dfdfdf" stroke="#000"/>
+                <circle cx="10" cy="12" r="2" fill="#ff0000"/>
+                <circle cx="15" cy="8" r="2" fill="#ffff00"/>
+                <circle cx="21" cy="9" r="2" fill="#0000ff"/>
+                <circle cx="10" cy="20" r="2" fill="#00ff00"/>
+                <!-- Pincel -->
+                <path d="M22 18 L28 24 L25 27 L19 21 Z" fill="#804000"/>
+                <path d="M28 24 L31 27 L28 30 L25 27 Z" fill="#c0c0c0"/>
+            </svg>
+            <div class="desktop-icon-label">Paint</div>
+        </div>
+
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VENTANA 1: MI PC -->
+    <!-- ============================================== -->
+    <div class="win95-window" id="window-mypc" style="top: 40px; left: 40px; width: 440px; height: 320px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'window-mypc')">
+            <div class="flex items-center gap-1">
+                <svg width="14" height="14" viewBox="0 0 32 32">
+                    <rect x="2" y="2" width="28" height="20" fill="#dfdfdf" stroke="#000"/>
+                    <rect x="5" y="5" width="22" height="14" fill="#008080"/>
+                </svg>
+                <span>Mi PC</span>
+            </div>
+            <div class="flex">
+                <button class="title-btn" onclick="minimizeWindow('window-mypc')">_</button>
+                <button class="title-btn" onclick="toggleMaximize('window-mypc')">□</button>
+                <button class="title-btn font-black" onclick="closeWindow('window-mypc')">✕</button>
+            </div>
+        </div>
+
+        <!-- Barra de menú -->
+        <div class="window-menubar">
+            <div class="menubar-item" onclick="toggleDropdown('mypc-menu-file')"><u>A</u>rchivo
+                <div class="dropdown-menu" id="mypc-menu-file">
+                    <div class="dropdown-entry" onclick="closeWindow('window-mypc')">Cerrar</div>
+                </div>
+            </div>
+            <div class="menubar-item"><u>E</u>dición</div>
+            <div class="menubar-item"><u>V</u>er</div>
+            <div class="menubar-item" onclick="showAbout('Mi PC', 'Explorador del sistema Windows 95')">A<u>y</u>uda</div>
+        </div>
+
+        <!-- Barra de navegación / ubicación -->
+        <div class="flex items-center gap-2 px-2 py-1 border-b border-[#808080] bg-win-gray text-[11px]">
+            <span>Ubicación:</span>
+            <div class="win95-inset px-2 py-0.5 flex-grow flex items-center bg-white" id="mypc-path">
+                Mi PC
+            </div>
+            <button class="win95-button text-[10px] px-2 py-0.5" onclick="navigateMyPcBack()" id="mypc-back-btn" disabled>Atrás</button>
+        </div>
+
+        <!-- Contenido de unidades / carpetas -->
+        <div class="win95-inset bg-white flex-grow p-3 overflow-auto flex flex-wrap content-start gap-6" id="mypc-explorer-content">
+            <!-- Disco 3.5 A -->
+            <div class="flex flex-col items-center w-16 cursor-pointer" onclick="playDriveSound()">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <rect x="3" y="4" width="26" height="24" fill="#c0c0c0" stroke="#000"/>
+                    <rect x="8" y="4" width="16" height="12" fill="#808080"/>
+                    <rect x="12" y="6" width="8" height="8" fill="#fff"/>
+                    <rect x="8" y="22" width="16" height="4" fill="#fff" stroke="#000"/>
+                </svg>
+                <span class="text-center mt-1 text-[11px]">Disco 3½ (A:)</span>
+            </div>
+
+            <!-- Disco C -->
+            <div class="flex flex-col items-center w-16 cursor-pointer" ondblclick="openDriveC()">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <rect x="2" y="8" width="28" height="16" fill="#c0c0c0" stroke="#000"/>
+                    <rect x="5" y="12" width="22" height="6" fill="#fff" stroke="#808080"/>
+                    <circle cx="24" cy="20" r="1.5" fill="#00ff00"/>
+                </svg>
+                <span class="text-center mt-1 text-[11px]">Disco local (C:)</span>
+            </div>
+
+            <!-- CD-ROM D -->
+            <div class="flex flex-col items-center w-16 cursor-pointer" onclick="playDriveSound()">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="13" fill="#dfdfdf" stroke="#000"/>
+                    <circle cx="16" cy="16" r="4" fill="#fff" stroke="#808080"/>
+                    <rect x="14" y="24" width="4" height="2" fill="#000"/>
+                </svg>
+                <span class="text-center mt-1 text-[11px]">(D:)</span>
+            </div>
+
+            <!-- Panel de Control -->
+            <div class="flex flex-col items-center w-16 cursor-pointer" onclick="showProperties()">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <rect x="4" y="4" width="24" height="24" fill="#ffff80" stroke="#000"/>
+                    <circle cx="16" cy="16" r="6" fill="#c0c0c0" stroke="#000"/>
+                    <line x1="8" y1="8" x2="24" y2="24" stroke="#000" stroke-width="2"/>
+                </svg>
+                <span class="text-center mt-1 text-[11px]">Panel de control</span>
+            </div>
+        </div>
+
+        <!-- Barra de estado -->
+        <div class="win95-inset px-2 py-0.5 text-[10px] mt-1 bg-win-gray" id="mypc-status">
+            4 objeto(s)
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VENTANA 2: BLOC DE NOTAS -->
+    <!-- ============================================== -->
+    <div class="win95-window" id="window-notepad" style="top: 80px; left: 160px; width: 480px; height: 340px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'window-notepad')">
+            <div class="flex items-center gap-1">
+                <svg width="14" height="14" viewBox="0 0 32 32">
+                    <rect x="4" y="2" width="22" height="28" fill="#fff" stroke="#000"/>
+                    <rect x="4" y="2" width="22" height="4" fill="#000080"/>
+                </svg>
+                <span id="notepad-title">Sin título - Bloc de notas</span>
+            </div>
+            <div class="flex">
+                <button class="title-btn" onclick="minimizeWindow('window-notepad')">_</button>
+                <button class="title-btn" onclick="toggleMaximize('window-notepad')">□</button>
+                <button class="title-btn font-black" onclick="closeWindow('window-notepad')">✕</button>
+            </div>
+        </div>
+
+        <!-- Menú -->
+        <div class="window-menubar">
+            <div class="menubar-item" onclick="toggleDropdown('notepad-menu-file')"><u>A</u>rchivo
+                <div class="dropdown-menu" id="notepad-menu-file">
+                    <div class="dropdown-entry" onclick="notepadNew()"><u>N</u>uevo</div>
+                    <div class="dropdown-entry" onclick="notepadSave()"><u>G</u>uardar como...</div>
+                    <div class="menu-divider"></div>
+                    <div class="dropdown-entry" onclick="closeWindow('window-notepad')"><u>S</u>alir</div>
+                </div>
+            </div>
+            <div class="menubar-item" onclick="toggleDropdown('notepad-menu-edit')"><u>E</u>dición
+                <div class="dropdown-menu" id="notepad-menu-edit">
+                    <div class="dropdown-entry" onclick="notepadInsertTime()">Hora y <u>f</u>echa <span class="text-gray-500 text-[10px]">F5</span></div>
+                    <div class="dropdown-entry" onclick="notepadSelectAll()"><u>S</u>eleccionar todo</div>
+                </div>
+            </div>
+            <div class="menubar-item" onclick="showAbout('Bloc de notas', 'Editor de texto clásico de Microsoft Windows 95.')">A<u>y</u>uda</div>
+        </div>
+
+        <!-- Área de texto con tipografía courier/fixedsys -->
+        <textarea id="notepad-textarea" class="win95-inset-field flex-grow p-2 outline-none resize-none font-mono text-[12px] leading-relaxed text-black bg-white" spellcheck="false">Estudio educativo independiente inspirado en Windows 95.
+
+Esta simulación funciona solo dentro de esta página.
+- Doble clic en íconos para abrir aplicaciones.
+- Arrastra las ventanas desde su barra de título azul.
+- Juega Buscaminas o usa la Calculadora y Paint.
+- Presiona "Inicio" para explorar los controles de la demo.</textarea>
+        
+        <div class="win95-inset px-2 py-0.5 text-[10px] mt-1 bg-win-gray flex justify-between">
+            <span id="notepad-stats">Líneas: 8 | Caracteres: 290</span>
+            <span>Windows (CRLF)</span>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VENTANA 3: BUSCAMINAS -->
+    <!-- ============================================== -->
+    <div class="win95-window" id="window-minesweeper" style="top: 70px; left: 240px; width: 230px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'window-minesweeper')">
+            <div class="flex items-center gap-1">
+                <svg width="14" height="14" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="7" fill="#fff"/>
+                </svg>
+                <span>Buscaminas</span>
+            </div>
+            <div class="flex">
+                <button class="title-btn" onclick="minimizeWindow('window-minesweeper')">_</button>
+                <button class="title-btn font-black" onclick="closeWindow('window-minesweeper')">✕</button>
+            </div>
+        </div>
+
+        <!-- Menú -->
+        <div class="window-menubar">
+            <div class="menubar-item" onclick="toggleDropdown('mines-menu-game')"><u>J</u>uego
+                <div class="dropdown-menu" id="mines-menu-game">
+                    <div class="dropdown-entry" onclick="resetMinesweeper()"><u>N</u>uevo <span class="text-gray-500 text-[10px]">F2</span></div>
+                    <div class="menu-divider"></div>
+                    <div class="dropdown-entry" onclick="closeWindow('window-minesweeper')"><u>S</u>alir</div>
+                </div>
+            </div>
+            <div class="menubar-item" onclick="showAbout('Buscaminas', 'Despeja las minas sin detonar ninguna. Clic derecho para banderas.')">A<u>y</u>uda</div>
+        </div>
+
+        <!-- Contenedor biselado de Buscaminas -->
+        <div class="p-2 bg-win-gray flex flex-col items-center">
+            
+            <!-- Cabecera con contadores y carita -->
+            <div class="win95-inset w-full p-2 mb-2 flex items-center justify-between bg-win-gray">
+                <!-- Contador de minas -->
+                <div class="mine-lcd" id="mine-counter">010</div>
+                
+                <!-- Botón de Reset con carita -->
+                <button class="win95-button w-7 h-7 p-0 text-base" id="mine-face" onclick="resetMinesweeper()">
+                    🙂
+                </button>
+                
+                <!-- Temporizador -->
+                <div class="mine-lcd" id="mine-timer">000</div>
+            </div>
+
+            <!-- Tablero de minas -->
+            <div class="win95-inset p-1 bg-[#808080]" id="mine-board-container">
+                <div id="mine-board" class="grid grid-cols-9 gap-[1px] bg-[#808080]">
+                    <!-- Las 81 celdas se generan con JavaScript -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VENTANA 4: CALCULADORA -->
+    <!-- ============================================== -->
+    <div class="win95-window" id="window-calc" style="top: 110px; left: 320px; width: 250px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'window-calc')">
+            <div class="flex items-center gap-1">
+                <svg width="14" height="14" viewBox="0 0 32 32">
+                    <rect x="4" y="2" width="24" height="28" fill="#dfdfdf" stroke="#fff"/>
+                </svg>
+                <span>Calculadora</span>
+            </div>
+            <div class="flex">
+                <button class="title-btn" onclick="minimizeWindow('window-calc')">_</button>
+                <button class="title-btn font-black" onclick="closeWindow('window-calc')">✕</button>
+            </div>
+        </div>
+
+        <div class="window-menubar">
+            <div class="menubar-item"><u>E</u>dición</div>
+            <div class="menubar-item"><u>V</u>er</div>
+            <div class="menubar-item" onclick="showAbout('Calculadora', 'Calculadora estándar de Windows 95.')">A<u>y</u>uda</div>
+        </div>
+
+        <div class="p-2 flex flex-col gap-2">
+            <!-- Pantalla LCD de la calculadora -->
+            <div class="win95-inset bg-white p-2 text-right font-mono text-lg font-bold tracking-wider overflow-hidden h-9 flex items-center justify-end" id="calc-display">
+                0
+            </div>
+
+            <!-- Teclado de la calculadora -->
+            <div class="flex gap-1 justify-between mb-1">
+                <span class="text-[10px] text-gray-600 flex-grow"></span>
+                <button class="win95-button text-[10px] px-2 py-0.5 text-red-700" onclick="calcAction('back')">Retroceso</button>
+                <button class="win95-button text-[10px] px-2 py-0.5 text-red-700" onclick="calcAction('ce')">CE</button>
+                <button class="win95-button text-[10px] px-2 py-0.5 text-red-700" onclick="calcAction('c')">C</button>
+            </div>
+
+            <div class="grid grid-cols-5 gap-1">
+                <button class="win95-button calc-btn fn" onclick="calcAction('mc')">MC</button>
+                <button class="win95-button calc-btn" onclick="calcNum('7')">7</button>
+                <button class="win95-button calc-btn" onclick="calcNum('8')">8</button>
+                <button class="win95-button calc-btn" onclick="calcNum('9')">9</button>
+                <button class="win95-button calc-btn op" onclick="calcOp('/')">/</button>
+
+                <button class="win95-button calc-btn fn" onclick="calcAction('mr')">MR</button>
+                <button class="win95-button calc-btn" onclick="calcNum('4')">4</button>
+                <button class="win95-button calc-btn" onclick="calcNum('5')">5</button>
+                <button class="win95-button calc-btn" onclick="calcNum('6')">6</button>
+                <button class="win95-button calc-btn op" onclick="calcOp('*')">*</button>
+
+                <button class="win95-button calc-btn fn" onclick="calcAction('ms')">MS</button>
+                <button class="win95-button calc-btn" onclick="calcNum('1')">1</button>
+                <button class="win95-button calc-btn" onclick="calcNum('2')">2</button>
+                <button class="win95-button calc-btn" onclick="calcNum('3')">3</button>
+                <button class="win95-button calc-btn op" onclick="calcOp('-')">-</button>
+
+                <button class="win95-button calc-btn fn" onclick="calcAction('mplus')">M+</button>
+                <button class="win95-button calc-btn" onclick="calcNum('0')">0</button>
+                <button class="win95-button calc-btn" onclick="calcAction('plusminus')">+/-</button>
+                <button class="win95-button calc-btn" onclick="calcNum('.')">.</button>
+                <button class="win95-button calc-btn op" onclick="calcOp('+')">+</button>
+            </div>
+            
+            <button class="win95-button py-1 text-red-700 font-bold" onclick="calcEquals()">=</button>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VENTANA 5: PAINT -->
+    <!-- ============================================== -->
+    <div class="win95-window" id="window-paint" style="top: 50px; left: 190px; width: 520px; height: 380px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'window-paint')">
+            <div class="flex items-center gap-1">
+                <svg width="14" height="14" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="10" fill="#ffff00"/>
+                </svg>
+                <span>Sin título - Paint</span>
+            </div>
+            <div class="flex">
+                <button class="title-btn" onclick="minimizeWindow('window-paint')">_</button>
+                <button class="title-btn" onclick="toggleMaximize('window-paint')">□</button>
+                <button class="title-btn font-black" onclick="closeWindow('window-paint')">✕</button>
+            </div>
+        </div>
+
+        <div class="window-menubar">
+            <div class="menubar-item" onclick="toggleDropdown('paint-menu-file')"><u>A</u>rchivo
+                <div class="dropdown-menu" id="paint-menu-file">
+                    <div class="dropdown-entry" onclick="clearCanvas()"><u>N</u>uevo lienzo</div>
+                    <div class="menu-divider"></div>
+                    <div class="dropdown-entry" onclick="closeWindow('window-paint')"><u>S</u>alir</div>
+                </div>
+            </div>
+            <div class="menubar-item" onclick="clearCanvas()"><u>L</u>impiar</div>
+            <div class="menubar-item" onclick="showAbout('Paint', 'Herramienta de dibujo de Microsoft Windows 95.')">A<u>y</u>uda</div>
+        </div>
+
+        <!-- Área de herramientas y lienzo -->
+        <div class="flex flex-grow p-1 gap-1 overflow-hidden">
+            <!-- Barra de herramientas izquierda -->
+            <div class="win95-outset w-14 p-1 flex flex-col gap-1 items-center">
+                <button class="win95-button w-10 h-7 pressed" id="tool-pencil" onclick="setPaintTool('pencil', this)" title="Lápiz">✏️</button>
+                <button class="win95-button w-10 h-7" id="tool-brush" onclick="setPaintTool('brush', this)" title="Pincel">🖌️</button>
+                <button class="win95-button w-10 h-7" id="tool-eraser" onclick="setPaintTool('eraser', this)" title="Borrador">🧹</button>
+                
+                <div class="w-full border-t border-b border-[#808080] my-1"></div>
+                
+                <!-- Indicador de colores activo -->
+                <div class="win95-inset w-8 h-8 relative p-1 bg-white">
+                    <div id="paint-secondary-color" class="w-4 h-4 bg-white absolute bottom-1 right-1 border border-black"></div>
+                    <div id="paint-current-color" class="w-4 h-4 bg-black absolute top-1 left-1 border border-black"></div>
+                </div>
+            </div>
+
+            <!-- Contenedor del lienzo con scrollbars 3D -->
+            <div class="win95-inset bg-[#808080] flex-grow overflow-auto p-2 flex items-center justify-center">
+                <canvas id="paint-canvas" width="400" height="240" class="bg-white shadow cursor-crosshair"></canvas>
+            </div>
+        </div>
+
+        <!-- Paleta de 28 colores en dos hileras estilo Windows 95 -->
+        <div class="win95-outset p-1 flex items-center justify-start gap-1 flex-wrap" id="paint-palette">
+            <!-- Colores insertados dinámicamente -->
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MENÚ INICIO -->
+    <!-- ============================================== -->
+    <div id="start-menu">
+        <div class="start-sidebar">
+            <div class="start-sidebar-text">Windows<span>95</span></div>
+        </div>
+        <div class="start-list">
+            
+            <!-- Programas ▸ -->
+            <div class="start-item has-submenu">
+                <svg width="22" height="22" class="mr-2" viewBox="0 0 32 32">
+                    <rect x="4" y="4" width="24" height="24" fill="#000080"/>
+                    <rect x="6" y="6" width="20" height="20" fill="#dfdfdf"/>
+                </svg>
+                <span><u>P</u>rogramas</span>
+                <span class="ml-auto text-xs">▶</span>
+
+                <!-- Submenú de Programas -->
+                <div class="submenu-flyout">
+                    <div class="start-item has-submenu">
+                        <span class="mr-2">📁</span> <u>A</u>ccesorios
+                        <span class="ml-auto text-xs">▶</span>
+                        <!-- Submenú Accesorios -->
+                        <div class="submenu-flyout">
+                            <div class="start-item" onclick="openWindow('window-notepad'); closeStartMenu();">
+                                <span class="mr-2">📝</span> Bloc de notas
+                            </div>
+                            <div class="start-item" onclick="openWindow('window-calc'); closeStartMenu();">
+                                <span class="mr-2">🧮</span> Calculadora
+                            </div>
+                            <div class="start-item" onclick="openWindow('window-paint'); closeStartMenu();">
+                                <span class="mr-2">🎨</span> Paint
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="start-item has-submenu">
+                        <span class="mr-2">📁</span> <u>J</u>uegos
+                        <span class="ml-auto text-xs">▶</span>
+                        <!-- Submenú Juegos -->
+                        <div class="submenu-flyout">
+                            <div class="start-item" onclick="openWindow('window-minesweeper'); closeStartMenu();">
+                                <span class="mr-2">💣</span> Buscaminas
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="start-item" onclick="openDosPrompt(); closeStartMenu();">
+                        <span class="mr-2">📟</span> Símbolo del sistema MS-DOS
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documentos ▸ -->
+            <div class="start-item has-submenu">
+                <svg width="22" height="22" class="mr-2" viewBox="0 0 32 32">
+                    <rect x="6" y="4" width="20" height="24" fill="#fff" stroke="#000"/>
+                </svg>
+                <span><u>D</u>ocumentos</span>
+                <span class="ml-auto text-xs">▶</span>
+                <div class="submenu-flyout">
+                    <div class="start-item text-gray-500">(Vacío)</div>
+                </div>
+            </div>
+
+            <!-- Configuración ▸ -->
+            <div class="start-item has-submenu">
+                <svg width="22" height="22" class="mr-2" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="10" fill="#808080" stroke="#000"/>
+                </svg>
+                <span><u>C</u>onfiguración</span>
+                <span class="ml-auto text-xs">▶</span>
+                <div class="submenu-flyout">
+                    <div class="start-item" onclick="showProperties(); closeStartMenu();">
+                        <span class="mr-2">⚙️</span> Panel de control
+                    </div>
+                    <div class="start-item" onclick="showProperties(); closeStartMenu();">
+                        <span class="mr-2">💻</span> Barra de tareas...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buscar ▸ -->
+            <div class="start-item has-submenu">
+                <svg width="22" height="22" class="mr-2" viewBox="0 0 32 32">
+                    <circle cx="14" cy="14" r="8" fill="none" stroke="#000" stroke-width="2"/>
+                    <line x1="20" y1="20" x2="28" y2="28" stroke="#000" stroke-width="3"/>
+                </svg>
+                <span><u>B</u>uscar</span>
+                <span class="ml-auto text-xs">▶</span>
+                <div class="submenu-flyout">
+                    <div class="start-item" onclick="closeStartMenu()">Archivos o carpetas...</div>
+                </div>
+            </div>
+
+            <!-- Ayuda -->
+            <div class="start-item" onclick="showAbout('Ayuda de Windows', 'Para recibir asistencia presione F1 en cualquier programa.'); closeStartMenu();">
+                <span class="text-blue-700 font-bold mr-2 text-base">?</span>
+                <span>A<u>y</u>uda</span>
+            </div>
+
+            <!-- Ejecutar -->
+            <div class="start-item" onclick="promptRun(); closeStartMenu();">
+                <span class="mr-2 text-base">⏩</span>
+                <span><u>E</u>jecutar...</span>
+            </div>
+
+            <div class="menu-divider"></div>
+
+            <!-- Apagar el sistema -->
+            <div class="start-item" onclick="showShutdownModal(); closeStartMenu();">
+                <span class="mr-2 text-base">🛑</span>
+                <span>Apagar el s<u>i</u>stema...</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- BARRA DE TAREAS -->
+    <!-- ============================================== -->
+    <div class="h-7 w-full bg-win-gray win95-outset fixed bottom-0 left-0 z-50 flex items-center justify-between px-1">
+        
+        <!-- Botón Inicio y ventanas abiertas -->
+        <div class="flex items-center gap-1 h-full py-0.5">
+            <!-- Botón Inicio -->
+            <button class="win95-button h-[22px] px-1.5 flex items-center gap-1 font-bold text-black" id="start-button" onclick="toggleStartMenu(event)">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                    <path d="M0 2 L6 1 V7 H0 Z" fill="#f05629"/>
+                    <path d="M7 0 L15 2 V7 H7 Z" fill="#589524"/>
+                    <path d="M0 8 H6 V14 L0 13 Z" fill="#00a7e5"/>
+                    <path d="M7 8 H15 V15 L7 14 Z" fill="#fec409"/>
+                </svg>
+                <span>Inicio</span>
+            </button>
+
+            <!-- Separador vertical -->
+            <div class="h-4 w-[2px] border-l border-[#808080] border-r border-[#ffffff] mx-1"></div>
+
+            <!-- Botones de ventanas abiertas en barra de tareas -->
+            <div id="taskbar-tasks" class="flex items-center gap-1">
+                <!-- Generado por JS -->
+            </div>
+        </div>
+
+        <!-- Área de notificación / System Tray -->
+        <div class="win95-inset h-[22px] px-2 flex items-center gap-2 text-black cursor-pointer bg-win-gray" title="Doble clic para ajustar fecha y hora" ondblclick="showProperties()">
+            <!-- Control de volumen (icono interactivo) -->
+            <div onclick="toggleVolumePopup(event)" title="Volumen">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="black">
+                    <path d="M2 5 H5 L9 1 V15 L5 11 H2 Z"/>
+                    <path d="M12 4 C13.5 6 13.5 10 12 12" stroke="black" stroke-width="1.5" fill="none"/>
+                </svg>
+            </div>
+
+            <!-- Sonido retro habilitar -->
+            <div onclick="playRetroChime()" title="Reproducir acorde de inicio Windows 95" class="text-[10px]">
+                🔔
+            </div>
+
+            <!-- Reloj -->
+            <span id="taskbar-clock" class="text-[11px] font-sans">12:00 PM</span>
+        </div>
+    </div>
+
+    <!-- Popup de volumen -->
+    <div id="volume-popup" class="win95-window" style="bottom: 30px; right: 10px; width: 70px; height: 130px; padding: 4px; display: none;">
+        <div class="text-[10px] text-center mb-1">Volumen</div>
+        <div class="flex-grow flex items-center justify-center">
+            <input type="range" orient="vertical" min="0" max="100" value="80" class="h-20" onchange="playSystemBeep()">
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- DIÁLOGO MODAL: APAGAR EL SISTEMA -->
+    <!-- ============================================== -->
+    <div class="modal-overlay" id="modal-shutdown">
+        <div class="win95-window !block" style="width: 320px;">
+            <div class="title-bar">
+                <span>Apagar Windows</span>
+                <button class="title-btn font-black" onclick="closeShutdownModal()">✕</button>
+            </div>
+            <div class="p-4 flex gap-3">
+                <div class="text-3xl">💻</div>
+                <div class="flex flex-col gap-2">
+                    <span class="font-bold">¿Qué desea que haga el equipo?</span>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="shutdown-action" value="shutdown" checked>
+                        <span>Apagar el equipo</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="shutdown-action" value="restart">
+                        <span>Reiniciar el equipo</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="shutdown-action" value="dos">
+                        <span>Reiniciar en modo MS-DOS</span>
+                    </label>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 p-2 bg-win-gray border-t border-[#808080]">
+                <button class="win95-button w-20" onclick="confirmShutdown()">Aceptar</button>
+                <button class="win95-button w-20" onclick="closeShutdownModal()">Cancelar</button>
+                <button class="win95-button w-20" onclick="showAbout('Ayuda', 'Seleccione Apagar para salir de la sesión.')">Ayuda</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- DIÁLOGO MODAL: ACERCA DE -->
+    <!-- ============================================== -->
+    <div class="modal-overlay" id="modal-about">
+        <div class="win95-window !block" style="width: 340px;">
+            <div class="title-bar" id="modal-about-title-bar">
+                <span id="modal-about-title">Acerca de Windows</span>
+                <button class="title-btn font-black" onclick="closeAboutModal()">✕</button>
+            </div>
+            <div class="p-4 flex gap-3 items-start bg-win-gray">
+                <div class="text-3xl">🪟</div>
+                <div class="flex flex-col gap-1 text-[11px]">
+                    <div class="font-bold text-sm" id="modal-about-appname">Estudio educativo de Windows 95</div>
+                    <div class="text-gray-700">Simulación independiente</div>
+                    <div class="my-2 border-t border-b border-[#808080] py-2" id="modal-about-desc">
+                        No es software de Microsoft ni una reproducción histórica verificada.
+                    </div>
+                    <div class="text-[10px] text-gray-600">No lee la memoria ni modifica el dispositivo.</div>
+                </div>
+            </div>
+            <div class="flex justify-end p-2 bg-win-gray border-t border-[#808080]">
+                <button class="win95-button w-20" onclick="closeAboutModal()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA CLÁSICA: "AHORA PUEDE APAGAR EL EQUIPO" -->
+    <!-- ============================================== -->
+    <div id="shutdown-screen">
+        <div class="text-2xl md:text-4xl font-serif text-[#ff8000] tracking-wide mb-6">
+            Ahora puede apagar el equipo.
+        </div>
+        <button class="win95-button text-black font-sans px-4 py-2 mt-4" onclick="rebootSystem()">
+            Reiniciar Windows 95
+        </button>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- LÓGICA Y SCRIPTS JAVASCRIPT                    -->
+    <!-- ============================================== -->
+    <script>
+        // --- 1. GESTOR DE AUDIO (WEB AUDIO API SINTETIZADO) ---
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Sonido de inicio icónico de Windows 95 (Acorde Brian Eno sintetizado)
+        function playRetroChime() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                // Secuencia de frecuencias del acorde místico de Win95
+                const freqs = [174.61, 261.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                freqs.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + (idx * 0.12));
+                    
+                    gain.gain.setValueAtTime(0.0001, now + (idx * 0.12));
+                    gain.gain.exponentialRampToValueAtTime(0.06 / (idx + 1), now + (idx * 0.12) + 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + (idx * 0.12) + 3.2);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + (idx * 0.12));
+                    osc.stop(now + (idx * 0.12) + 3.5);
+                });
+            } catch (e) {
+                console.log("Audio not allowed yet:", e);
+            }
+        }
+
+        // Beep clásico / Ding de error
+        function playSystemBeep() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.16);
+            } catch(e) {}
+        }
+
+        // Sonido mecánico de disquetera o clic
+        function playDriveSound() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.32);
+            } catch(e){}
+        }
+
+        // --- 2. SISTEMA DE VENTANAS Y FOCO ---
+        let zCounter = 100;
+        let activeWindowId = null;
+        const windowRestoreState = {};
+
+        function openWindow(id) {
+            const win = document.getElementById(id);
+            if (!win) return;
+            win.style.display = 'flex';
+            bringToFront(id);
+            updateTaskbar();
+        }
+
+        function closeWindow(id) {
+            const win = document.getElementById(id);
+            if (!win) return;
+            win.style.display = 'none';
+            if (activeWindowId === id) activeWindowId = null;
+            updateTaskbar();
+        }
+
+        function minimizeWindow(id) {
+            const win = document.getElementById(id);
+            if (!win) return;
+            win.style.display = 'none';
+            if (activeWindowId === id) activeWindowId = null;
+            updateTaskbar();
+        }
+
+        function toggleMaximize(id) {
+            const win = document.getElementById(id);
+            if (!win) return;
+            if (win.classList.contains('maximized')) {
+                win.classList.remove('maximized');
+                if (windowRestoreState[id]) {
+                    win.style.top = windowRestoreState[id].top;
+                    win.style.left = windowRestoreState[id].left;
+                    win.style.width = windowRestoreState[id].width;
+                    win.style.height = windowRestoreState[id].height;
+                }
+            } else {
+                windowRestoreState[id] = {
+                    top: win.style.top,
+                    left: win.style.left,
+                    width: win.style.width,
+                    height: win.style.height
+                };
+                win.classList.add('maximized');
+            }
+            bringToFront(id);
+        }
+
+        function bringToFront(id) {
+            zCounter++;
+            const win = document.getElementById(id);
+            if (!win) return;
+            win.style.zIndex = zCounter;
+            activeWindowId = id;
+
+            // Actualizar estilo de barra de títulos (Azul activo vs Gris inactivo)
+            document.querySelectorAll('.win95-window').forEach(w => {
+                const tb = w.querySelector('.title-bar');
+                if (tb) {
+                    if (w.id === id) {
+                        tb.classList.remove('inactive');
+                    } else {
+                        tb.classList.add('inactive');
+                    }
+                }
+            });
+            updateTaskbar();
+        }
+
+        // Registrar listener de clic en ventanas para traerlas al frente
+        document.querySelectorAll('.win95-window').forEach(win => {
+            win.addEventListener('mousedown', () => bringToFront(win.id));
+        });
+
+        // --- 3. ARRASTRE DE VENTANAS (MOUSE & TOUCH) ---
+        let dragTarget = null;
+        let dragOffset = { x: 0, y: 0 };
+
+        function startDrag(e, windowId) {
+            if (e.target.tagName.toLowerCase() === 'button') return;
+            dragTarget = document.getElementById(windowId);
+            if (dragTarget.classList.contains('maximized')) return; // No arrastrar si está maximizada
+            bringToFront(windowId);
+
+            const rect = dragTarget.getBoundingClientRect();
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+            dragOffset.x = clientX - rect.left;
+            dragOffset.y = clientY - rect.top;
+
+            window.addEventListener('mousemove', onDragMove);
+            window.addEventListener('mouseup', stopDrag);
+            window.addEventListener('touchmove', onDragMove, { passive: false });
+            window.addEventListener('touchend', stopDrag);
+        }
+
+        function onDragMove(e) {
+            if (!dragTarget) return;
+            if (e.cancelable && e.type.includes('touch')) e.preventDefault();
+
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+            let newLeft = clientX - dragOffset.x;
+            let newTop = clientY - dragOffset.y;
+
+            // Mantener barra de título dentro de la pantalla
+            if (newTop < 0) newTop = 0;
+            if (newTop > window.innerHeight - 40) newTop = window.innerHeight - 40;
+
+            dragTarget.style.left = `${newLeft}px`;
+            dragTarget.style.top = `${newTop}px`;
+        }
+
+        function stopDrag() {
+            dragTarget = null;
+            window.removeEventListener('mousemove', onDragMove);
+            window.removeEventListener('mouseup', stopDrag);
+            window.removeEventListener('touchmove', onDragMove);
+            window.removeEventListener('touchend', stopDrag);
+        }
+
+        // --- 4. BARRA DE TAREAS Y RELOJ ---
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('taskbar-clock').textContent = `${hours}:${minutes} ${ampm}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function updateTaskbar() {
+            const container = document.getElementById('taskbar-tasks');
+            container.innerHTML = '';
+
+            const apps = [
+                { id: 'window-mypc', title: 'Mi PC', icon: '💻' },
+                { id: 'window-notepad', title: 'Bloc de notas', icon: '📝' },
+                { id: 'window-minesweeper', title: 'Buscaminas', icon: '💣' },
+                { id: 'window-calc', title: 'Calculadora', icon: '🧮' },
+                { id: 'window-paint', title: 'Paint', icon: '🎨' }
+            ];
+
+            apps.forEach(app => {
+                const el = document.getElementById(app.id);
+                if (el && el.style.display === 'flex') {
+                    const btn = document.createElement('button');
+                    const isActive = activeWindowId === app.id;
+                    btn.className = `win95-button h-[22px] px-2 text-[11px] max-w-[130px] truncate flex items-center gap-1 font-normal ${isActive ? 'taskbar-btn-active font-bold' : ''}`;
+                    btn.innerHTML = `<span>${app.icon}</span> <span class="truncate">${app.title}</span>`;
+                    btn.onclick = () => {
+                        if (isActive) {
+                            minimizeWindow(app.id);
+                        } else {
+                            if (el.style.display === 'none') el.style.display = 'flex';
+                            bringToFront(app.id);
+                        }
+                    };
+                    container.appendChild(btn);
+                }
+            });
+        }
+
+        // --- 5. MENÚ INICIO Y SUBMENÚS ---
+        let isStartOpen = false;
+        function toggleStartMenu(e) {
+            if (e) e.stopPropagation();
+            isStartOpen = !isStartOpen;
+            const menu = document.getElementById('start-menu');
+            const btn = document.getElementById('start-button');
+            if (isStartOpen) {
+                menu.style.display = 'flex';
+                btn.classList.add('pressed');
+            } else {
+                menu.style.display = 'none';
+                btn.classList.remove('pressed');
+            }
+        }
+
+        function closeStartMenu() {
+            isStartOpen = false;
+            document.getElementById('start-menu').style.display = 'none';
+            document.getElementById('start-button').classList.remove('pressed');
+        }
+
+        // Cerrar menús al hacer clic en el escritorio
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#start-menu') && !e.target.closest('#start-button')) {
+                closeStartMenu();
+            }
+            if (!e.target.closest('.menubar-item')) {
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('visible'));
+            }
+            if (!e.target.closest('#volume-popup') && !e.target.closest('[title="Volumen"]')) {
+                document.getElementById('volume-popup').style.display = 'none';
+            }
+            document.getElementById('desktop-context-menu').classList.remove('visible');
+        });
+
+        function toggleDropdown(id) {
+            const menu = document.getElementById(id);
+            if (!menu) return;
+            const wasVisible = menu.classList.contains('visible');
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('visible'));
+            if (!wasVisible) menu.classList.add('visible');
+        }
+
+        function toggleVolumePopup(e) {
+            e.stopPropagation();
+            const pop = document.getElementById('volume-popup');
+            pop.style.display = pop.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // --- 6. SELECCIÓN DE ÍCONOS Y MARQUESINA DEL ESCRITORIO ---
+        const desktop = document.getElementById('desktop');
+        const selectionBox = document.getElementById('selection-box');
+        let isSelecting = false;
+        let selectStart = { x: 0, y: 0 };
+
+        document.querySelectorAll('.desktop-icon-item').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.desktop-icon-item').forEach(i => i.classList.remove('selected'));
+                icon.classList.add('selected');
+            });
+        });
+
+        desktop.addEventListener('mousedown', (e) => {
+            if (e.target !== desktop) return;
+            document.querySelectorAll('.desktop-icon-item').forEach(i => i.classList.remove('selected'));
+            isSelecting = true;
+            selectStart.x = e.clientX;
+            selectStart.y = e.clientY;
+            selectionBox.style.left = `${e.clientX}px`;
+            selectionBox.style.top = `${e.clientY}px`;
+            selectionBox.style.width = '0px';
+            selectionBox.style.height = '0px';
+            selectionBox.style.display = 'block';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isSelecting) return;
+            const currentX = e.clientX;
+            const currentY = e.clientY;
+            const left = Math.min(selectStart.x, currentX);
+            const top = Math.min(selectStart.y, currentY);
+            const width = Math.abs(currentX - selectStart.x);
+            const height = Math.abs(currentY - selectStart.y);
+
+            selectionBox.style.left = `${left}px`;
+            selectionBox.style.top = `${top}px`;
+            selectionBox.style.width = `${width}px`;
+            selectionBox.style.height = `${height}px`;
+
+            // Marcar íconos tocados por la caja
+            const boxRect = selectionBox.getBoundingClientRect();
+            document.querySelectorAll('.desktop-icon-item').forEach(icon => {
+                const iconRect = icon.getBoundingClientRect();
+                const overlaps = !(boxRect.right < iconRect.left || 
+                                   boxRect.left > iconRect.right || 
+                                   boxRect.bottom < iconRect.top || 
+                                   boxRect.top > iconRect.bottom);
+                if (overlaps) {
+                    icon.classList.add('selected');
+                }
+            });
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isSelecting) {
+                isSelecting = false;
+                selectionBox.style.display = 'none';
+            }
+        });
+
+        // Menú Contextual con Clic Derecho
+        desktop.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const ctxMenu = document.getElementById('desktop-context-menu');
+            ctxMenu.style.left = `${e.clientX}px`;
+            ctxMenu.style.top = `${e.clientY}px`;
+            ctxMenu.classList.add('visible');
+        });
+
+        function arrangeIcons() {
+            playSystemBeep();
+        }
+
+        // --- 7. BUSCAMINAS: LÓGICA Y JUGABILIDAD COMPLETA ---
+        const ROWS = 9;
+        const COLS = 9;
+        const MINES = 10;
+        let mineGrid = [];
+        let mineRevealed = [];
+        let mineFlagged = [];
+        let mineGameOver = false;
+        let mineTimerInterval = null;
+        let mineSeconds = 0;
+        let mineStarted = false;
+
+        function initMinesweeper() {
+            const board = document.getElementById('mine-board');
+            board.innerHTML = '';
+            mineGrid = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
+            mineRevealed = Array(ROWS).fill(null).map(() => Array(COLS).fill(false));
+            mineFlagged = Array(ROWS).fill(null).map(() => Array(COLS).fill(false));
+            mineGameOver = false;
+            mineStarted = false;
+            mineSeconds = 0;
+            clearInterval(mineTimerInterval);
+            document.getElementById('mine-timer').textContent = '000';
+            document.getElementById('mine-counter').textContent = '010';
+            document.getElementById('mine-face').textContent = '🙂';
+
+            // Crear celdas en el DOM
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'mine-cell mine-cell-unrevealed';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    
+                    cell.addEventListener('mousedown', (e) => {
+                        if (mineGameOver) return;
+                        if (e.button === 0 && !mineFlagged[r][c] && !mineRevealed[r][c]) {
+                            document.getElementById('mine-face').textContent = '😮';
+                        }
+                    });
+
+                    cell.addEventListener('mouseup', () => {
+                        if (!mineGameOver) document.getElementById('mine-face').textContent = '🙂';
+                    });
+
+                    cell.addEventListener('click', () => revealCell(r, c));
+                    cell.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        toggleFlag(r, c);
+                    });
+
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function placeMines(firstRow, firstCol) {
+            let placed = 0;
+            while (placed < MINES) {
+                const r = Math.floor(Math.random() * ROWS);
+                const c = Math.floor(Math.random() * COLS);
+                // Asegurar que la primera celda clicada no tenga mina
+                if (mineGrid[r][c] !== 'M' && !(r === firstRow && c === firstCol)) {
+                    mineGrid[r][c] = 'M';
+                    placed++;
+                }
+            }
+
+            // Calcular números adyacentes
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (mineGrid[r][c] === 'M') continue;
+                    let count = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            const nr = r + dr, nc = c + dc;
+                            if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && mineGrid[nr][nc] === 'M') {
+                                count++;
+                            }
+                        }
+                    }
+                    mineGrid[r][c] = count;
+                }
+            }
+        }
+
+        function revealCell(r, c) {
+            if (mineGameOver || mineFlagged[r][c] || mineRevealed[r][c]) return;
+
+            if (!mineStarted) {
+                mineStarted = true;
+                placeMines(r, c);
+                mineTimerInterval = setInterval(() => {
+                    mineSeconds++;
+                    const s = Math.min(mineSeconds, 999).toString().padStart(3, '0');
+                    document.getElementById('mine-timer').textContent = s;
+                }, 1000);
+            }
+
+            const cell = document.querySelector(`.mine-cell[data-row="${r}"][data-col="${c}"]`);
+            if (mineGrid[r][c] === 'M') {
+                // Detonación
+                triggerGameOver(false, r, c);
+                return;
+            }
+
+            mineRevealed[r][c] = true;
+            cell.className = 'mine-cell mine-cell-revealed';
+            const val = mineGrid[r][c];
+            if (val > 0) {
+                cell.textContent = val;
+                cell.classList.add(`mine-${val}`);
+            } else {
+                cell.textContent = '';
+                // Expansión recursiva para celdas vacías
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        const nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+                            if (!mineRevealed[nr][nc]) revealCell(nr, nc);
+                        }
+                    }
+                }
+            }
+
+            checkWin();
+        }
+
+        function toggleFlag(r, c) {
+            if (mineGameOver || mineRevealed[r][c]) return;
+            const cell = document.querySelector(`.mine-cell[data-row="${r}"][data-col="${c}"]`);
+            mineFlagged[r][c] = !mineFlagged[r][c];
+            
+            if (mineFlagged[r][c]) {
+                cell.textContent = '🚩';
+            } else {
+                cell.textContent = '';
+            }
+
+            // Actualizar contador
+            let flagsUsed = 0;
+            for (let i = 0; i < ROWS; i++) {
+                for (let j = 0; j < COLS; j++) {
+                    if (mineFlagged[i][j]) flagsUsed++;
+                }
+            }
+            const rem = Math.max(0, MINES - flagsUsed).toString().padStart(3, '0');
+            document.getElementById('mine-counter').textContent = rem;
+        }
+
+        function triggerGameOver(won, hitRow, hitCol) {
+            mineGameOver = true;
+            clearInterval(mineTimerInterval);
+            document.getElementById('mine-face').textContent = won ? '😎' : '😵';
+
+            // Mostrar todas las minas
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.querySelector(`.mine-cell[data-row="${r}"][data-col="${c}"]`);
+                    if (mineGrid[r][c] === 'M') {
+                        cell.className = 'mine-cell mine-cell-revealed';
+                        cell.textContent = '💣';
+                        if (r === hitRow && c === hitCol) {
+                            cell.style.backgroundColor = '#ff0000';
+                        }
+                    }
+                }
+            }
+            playSystemBeep();
+        }
+
+        function checkWin() {
+            let revealedCount = 0;
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (mineRevealed[r][c]) revealedCount++;
+                }
+            }
+            if (revealedCount === (ROWS * COLS) - MINES) {
+                triggerGameOver(true);
+            }
+        }
+
+        function resetMinesweeper() {
+            initMinesweeper();
+        }
+        initMinesweeper();
+
+        // --- 8. CALCULADORA ---
+        let calcCurrent = '0';
+        let calcPrev = null;
+        let calcPendingOp = null;
+        let calcResetNext = false;
+
+        function updateCalcDisplay() {
+            document.getElementById('calc-display').textContent = calcCurrent;
+        }
+
+        function calcNum(n) {
+            if (calcResetNext) {
+                calcCurrent = n === '.' ? '0.' : n;
+                calcResetNext = false;
+            } else {
+                if (n === '.' && calcCurrent.includes('.')) return;
+                calcCurrent = calcCurrent === '0' && n !== '.' ? n : calcCurrent + n;
+            }
+            updateCalcDisplay();
+        }
+
+        function calcOp(op) {
+            if (calcPendingOp && !calcResetNext) {
+                calcEquals();
+            }
+            calcPrev = parseFloat(calcCurrent);
+            calcPendingOp = op;
+            calcResetNext = true;
+        }
+
+        function calcEquals() {
+            if (!calcPendingOp || calcPrev === null) return;
+            const a = calcPrev;
+            const b = parseFloat(calcCurrent);
+            let res = 0;
+            switch (calcPendingOp) {
+                case '+': res = a + b; break;
+                case '-': res = a - b; break;
+                case '*': res = a * b; break;
+                case '/': res = b === 0 ? 'Error' : a / b; break;
+            }
+            calcCurrent = res.toString();
+            calcPendingOp = null;
+            calcPrev = null;
+            calcResetNext = true;
+            updateCalcDisplay();
+        }
+
+        function calcAction(act) {
+            if (act === 'c') {
+                calcCurrent = '0';
+                calcPrev = null;
+                calcPendingOp = null;
+            } else if (act === 'ce') {
+                calcCurrent = '0';
+            } else if (act === 'back') {
+                calcCurrent = calcCurrent.length > 1 ? calcCurrent.slice(0, -1) : '0';
+            } else if (act === 'plusminus') {
+                calcCurrent = (parseFloat(calcCurrent) * -1).toString();
+            }
+            updateCalcDisplay();
+        }
+
+        // --- 9. PAINT ---
+        const canvas = document.getElementById('paint-canvas');
+        const ctx = canvas.getContext('2d');
+        let painting = false;
+        let currentTool = 'pencil';
+        let currentColor = '#000000';
+        let brushSize = 2;
+
+        const win95Colors = [
+            '#000000', '#808080', '#800000', '#808000', '#008000', '#008080', '#000080', '#800080',
+            '#808040', '#004040', '#0080ff', '#004080', '#8000ff', '#804000', '#ffffff', '#c0c0c0',
+            '#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00ff', '#ffff80', '#00ff80',
+            '#80ffff', '#8080ff', '#ff0080', '#ff8040'
+        ];
+
+        // Rellenar paleta
+        const paletteContainer = document.getElementById('paint-palette');
+        win95Colors.forEach(c => {
+            const swatch = document.createElement('div');
+            swatch.className = 'w-3.5 h-3.5 cursor-pointer border border-black shadow-inner';
+            swatch.style.backgroundColor = c;
+            swatch.onclick = () => {
+                currentColor = c;
+                document.getElementById('paint-current-color').style.backgroundColor = c;
+            };
+            paletteContainer.appendChild(swatch);
+        });
+
+        function setPaintTool(tool, btn) {
+            currentTool = tool;
+            brushSize = tool === 'brush' ? 6 : (tool === 'eraser' ? 14 : 2);
+            document.querySelectorAll('#window-paint .win95-button').forEach(b => b.classList.remove('pressed'));
+            btn.classList.add('pressed');
+        }
+
+        function startPaint(e) {
+            painting = true;
+            drawPaint(e);
+        }
+
+        function stopPaint() {
+            painting = false;
+            ctx.beginPath();
+        }
+
+        function drawPaint(e) {
+            if (!painting) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+            const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = currentTool === 'brush' ? 'round' : 'square';
+            ctx.strokeStyle = currentTool === 'eraser' ? '#ffffff' : currentColor;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        canvas.addEventListener('mousedown', startPaint);
+        canvas.addEventListener('mouseup', stopPaint);
+        canvas.addEventListener('mousemove', drawPaint);
+        canvas.addEventListener('mouseleave', stopPaint);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startPaint(e); }, { passive: false });
+        canvas.addEventListener('touchend', stopPaint);
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawPaint(e); }, { passive: false });
+
+        function clearCanvas() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        clearCanvas();
+
+        // --- 10. BLOC DE NOTAS ---
+        const notepadArea = document.getElementById('notepad-textarea');
+        notepadArea.addEventListener('input', () => {
+            const lines = notepadArea.value.split('\n').length;
+            const chars = notepadArea.value.length;
+            document.getElementById('notepad-stats').textContent = `Líneas: ${lines} | Caracteres: ${chars}`;
+        });
+
+        function notepadNew() {
+            notepadArea.value = '';
+            document.getElementById('notepad-title').textContent = 'Sin título - Bloc de notas';
+        }
+
+        function notepadInsertTime() {
+            const dateStr = new Date().toLocaleString();
+            notepadArea.value += '\n' + dateStr;
+        }
+
+        function notepadSelectAll() {
+            notepadArea.select();
+        }
+
+        function notepadSave() {
+            showAbout('Guardar como…', 'El texto solo permanece en esta demostración. No se crea ni descarga ningún archivo.');
+        }
+
+        // --- 11. EXPLORADOR MI PC (NAVEGACIÓN) ---
+        let myPcHistory = ['root'];
+
+        function openDriveC() {
+            const content = document.getElementById('mypc-explorer-content');
+            document.getElementById('mypc-path').textContent = 'C:\\';
+            document.getElementById('mypc-status').textContent = '3 carpetas';
+            document.getElementById('mypc-back-btn').disabled = false;
+            content.innerHTML = `
+                <div class="flex flex-col items-center w-16 cursor-pointer" ondblclick="playSystemBeep()">
+                    <span class="text-3xl">📁</span>
+                    <span class="text-center mt-1 text-[11px]">Archivos de programa</span>
+                </div>
+                <div class="flex flex-col items-center w-16 cursor-pointer" ondblclick="playSystemBeep()">
+                    <span class="text-3xl">📁</span>
+                    <span class="text-center mt-1 text-[11px]">WINDOWS</span>
+                </div>
+                <div class="flex flex-col items-center w-16 cursor-pointer" ondblclick="playSystemBeep()">
+                    <span class="text-3xl">📁</span>
+                    <span class="text-center mt-1 text-[11px]">Mis documentos</span>
+                </div>
+            `;
+            myPcHistory.push('c');
+        }
+
+        function navigateMyPcBack() {
+            const content = document.getElementById('mypc-explorer-content');
+            document.getElementById('mypc-path').textContent = 'Mi PC';
+            document.getElementById('mypc-status').textContent = '4 objeto(s)';
+            document.getElementById('mypc-back-btn').disabled = true;
+            content.innerHTML = `
+                <div class="flex flex-col items-center w-16 cursor-pointer" onclick="playDriveSound()">
+                    <svg width="32" height="32" viewBox="0 0 32 32">
+                        <rect x="3" y="4" width="26" height="24" fill="#c0c0c0" stroke="#000"/>
+                        <rect x="8" y="4" width="16" height="12" fill="#808080"/>
+                        <rect x="12" y="6" width="8" height="8" fill="#fff"/>
+                        <rect x="8" y="22" width="16" height="4" fill="#fff" stroke="#000"/>
+                    </svg>
+                    <span class="text-center mt-1 text-[11px]">Disco 3½ (A:)</span>
+                </div>
+                <div class="flex flex-col items-center w-16 cursor-pointer" ondblclick="openDriveC()">
+                    <svg width="32" height="32" viewBox="0 0 32 32">
+                        <rect x="2" y="8" width="28" height="16" fill="#c0c0c0" stroke="#000"/>
+                        <rect x="5" y="12" width="22" height="6" fill="#fff" stroke="#808080"/>
+                        <circle cx="24" cy="20" r="1.5" fill="#00ff00"/>
+                    </svg>
+                    <span class="text-center mt-1 text-[11px]">Disco local (C:)</span>
+                </div>
+                <div class="flex flex-col items-center w-16 cursor-pointer" onclick="playDriveSound()">
+                    <svg width="32" height="32" viewBox="0 0 32 32">
+                        <circle cx="16" cy="16" r="13" fill="#dfdfdf" stroke="#000"/>
+                        <circle cx="16" cy="16" r="4" fill="#fff" stroke="#808080"/>
+                    </svg>
+                    <span class="text-center mt-1 text-[11px]">(D:)</span>
+                </div>
+                <div class="flex flex-col items-center w-16 cursor-pointer" onclick="showProperties()">
+                    <svg width="32" height="32" viewBox="0 0 32 32">
+                        <rect x="4" y="4" width="24" height="24" fill="#ffff80" stroke="#000"/>
+                        <circle cx="16" cy="16" r="6" fill="#c0c0c0" stroke="#000"/>
+                    </svg>
+                    <span class="text-center mt-1 text-[11px]">Panel de control</span>
+                </div>
+            `;
+            myPcHistory = ['root'];
+        }
+
+        // --- 12. DIÁLOGOS MODALES Y APAGADO ---
+        function showShutdownModal() {
+            document.getElementById('modal-shutdown').style.display = 'flex';
+        }
+
+        function closeShutdownModal() {
+            document.getElementById('modal-shutdown').style.display = 'none';
+        }
+
+        function confirmShutdown() {
+            closeShutdownModal();
+            const action = document.querySelector('input[name="shutdown-action"]:checked').value;
+            if (action === 'shutdown') {
+                document.getElementById('shutdown-screen').style.display = 'flex';
+            } else {
+                location.reload();
+            }
+        }
+
+        function rebootSystem() {
+            location.reload();
+        }
+
+        function showAbout(appName, desc) {
+            document.getElementById('modal-about-title').textContent = `Acerca de ${appName}`;
+            document.getElementById('modal-about-appname').textContent = appName;
+            document.getElementById('modal-about-desc').textContent = desc;
+            document.getElementById('modal-about').style.display = 'flex';
+        }
+
+        function closeAboutModal() {
+            document.getElementById('modal-about').style.display = 'none';
+        }
+
+        function showProperties() {
+            showAbout('Propiedades de la demostración', 'Estudio educativo independiente. No consulta este equipo ni su configuración.');
+        }
+
+        function promptRun() {
+            showAbout('Ejecutar', 'Escriba el nombre del programa o carpeta para abrirlo.');
+        }
+
+        function openTrash() {
+            showAbout('Papelera de reciclaje', 'La papelera de reciclaje no contiene elementos eliminados.');
+        }
+
+        function openDosPrompt() {
+            notepadArea.value += '\n\nC:\\WINDOWS> echo Iniciando modo MS-DOS...\nC:\\WINDOWS> _';
+            openWindow('window-notepad');
+        }
+
+        // Reproducir sonido clásico de Windows 95 con el primer clic del usuario
+        window.addEventListener('click', function initAudioOnFirstTouch() {
+            playRetroChime();
+            window.removeEventListener('click', initAudioOnFirstTouch);
+        }, { once: true });
+    </script>
+    <script>
+        document.querySelectorAll('[onclick], [ondblclick]').forEach((element) => {
+            if (element.matches('button, a, input, textarea, select, [role="button"]')) return;
+            if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '0');
+            element.setAttribute('role', 'button');
+            const label = (element.innerText || element.getAttribute('title') || '').trim().replace(/\s+/g, ' ');
+            if (label && !element.hasAttribute('aria-label')) element.setAttribute('aria-label', label);
+            element.addEventListener('keydown', (event) => {
+                if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) {
+                    event.preventDefault();
+                    if (element.hasAttribute('ondblclick')) {
+                        element.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true, view: window }));
+                    } else {
+                        element.click();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
