@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://danielunibe.github.io/VoyagerOS-web/sitemap.xml
